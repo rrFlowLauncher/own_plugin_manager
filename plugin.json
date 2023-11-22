@@ -1,12 +1,12 @@
 {
-    "ID": "",
-    "ActionKeyword": "xx",
-    "Name": "RR-Template",
-    "Description": "Template for my plugins",
-    "Author": "Robert Rennert",
+    "ID": "ec5e1749-9645-43d5-a70d-a62fca016add",
+    "ActionKeyword": "pmr",
+    "Name": "RrobertRr own plugin manager for FlowLauncher",
+    "Description": "RrobertRr own plugin manager for FlowLauncher",
+    "Author": "RrobertRr",
     "Version": "0.1.0",
     "Language": "python",
-    "Website": "https://github.com/rrFlowLauncher/FL_plugin_template",
+    "Website": "https://github.com/rrFlowLauncher/own_plugin_manager",
     "IcoPath": "Images\\app.png",
     "ExecuteFileName": "main.py"
 }
