@@ -1,15 +1,23 @@
+import time
+
 import requests
 
 from flox import Flox
 
 
 
-class Template(Flox):
+class PluginManager(Flox):
     def __init__(self):
         super().__init__()
     def query(self, query):
         if query.startswith("install"):
-            pass
+            self.add_item(
+                title="install",
+                subtitle="install <Name> <GitHub Repo URL>",
+                method=self.installa,
+                parameters=["pmr install"],
+                dont_hide=True
+            )
         elif query.startswith("update"):
             pass
         elif query.startswith("uninstall"):
@@ -48,7 +56,28 @@ class Template(Flox):
             context=["jip"]
         )
 
+#    def install(self, cmd, title=str, url=str, *args):
+    def installa(self, *args):
+        self.start_loadingbar()
+        self.add_item(
+            title="installing",
+            subtitle="install <Name> <GitHub Repo URL>",
+#            method=self.install,
+#            parameters=["pmr install"],
+            dont_hide=True
+        )
+        time.sleep(1)
+        self.add_item(
+            title="install finished",
+            subtitle="install <Name> <GitHub Repo URL>",
+          #  method=self.install,
+         #   parameters=["pmr install"],
+            dont_hide=True
+        )
+        self.stop_loadingbar()
+
+
 
 if __name__ == "__main__":
-    template = Template()
-    template.run()
+    plugin_manager = PluginManager()
+    plugin_manager.run()
