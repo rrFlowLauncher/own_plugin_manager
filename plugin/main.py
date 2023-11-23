@@ -140,7 +140,7 @@ class PluginManager(Flox):
             new_plugin_json_file_dict = json.loads(new_plugin_json_file_str)
             plugin_name = new_plugin_json_file_dict["Name"]
             plugin_version = new_plugin_json_file_dict["Version"]
-            plugin_website = new_plugin_json_file_dict["Website"]
+            plugin_website = new_plugin_json_file_dict["Website"].rstrip("/")
             self.settings.update({plugin_name:
                 {
                     "Branch": branch,
@@ -157,5 +157,5 @@ class PluginManager(Flox):
 if __name__ == "__main__":
     plugin_manager = PluginManager()
     #plugin_manager.run()
-    query = "install https://github.com/rrFlowLauncher/own_plugin_manager main"
-    plugin_manager.update(query)
+    query = "install https://github.com/rrFlowLauncher/amazing_marvin main"
+    plugin_manager.install_plugin_from_github(query)
