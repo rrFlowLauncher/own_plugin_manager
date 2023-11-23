@@ -1,3 +1,4 @@
+import json
 import os
 import time
 
@@ -5,6 +6,7 @@ import requests
 
 from flox import Flox
 
+INSTALL_QUERY = "install <GitHub_Repo_URL> <Branch>"
 
 class PluginManager(Flox):
     def __init__(self):
@@ -53,48 +55,69 @@ class PluginManager(Flox):
         self.change_query("pmr install succ", True)
 
     def install(self, query):
-        if len(query.split()) <=3:
+        query_splitted = query.split()
+        if len(query_splitted) <= 3:
+            title = ""
+            for nr, q in enumerate(INSTALL_QUERY.split()):
+                try:
+                    title += "{} ".format(query_splitted[nr])
+                except:
+                    title += "{} ".format(q)
             self.add_item(
-                title="install",
-                subtitle="install <Name> <GitHub Repo URL>",
-                method=self.installa,
+                title=title,
+                subtitle="<GitHub Repo URL> => The URL to the Repository\n"
+                         "<BRANCH> => The Branch, which will be used for this plugin".format(query),
+                method=self.install_plugin_from_github,
                 parameters=[query],
                 dont_hide=True
             )
         else:
             self.add_item(
                 title="install - to many parameters",
-                subtitle="install <Name> <GitHub Repo URL>",
+                subtitle=INSTALL_QUERY,
                 dont_hide=True
             )
 
     def update(self, query):
         if "OwnPluginLauncher" not in self.settings.keys():
-            self.settings.update({self.manifest["Name"]: {"Version": self.manifest["Version"], "Website": self.manifest["Website"]}})
+            self.settings.update({self.manifest["Name"]: {"Version": self.manifest["Version"],
+                                                          "Website": self.manifest["Website"],
+                                                          "Branch": "main"}})
             self.add_item(
                 title="OwnPluginLauncher not available",
                 subtitle="asdf",
                 dont_hide=True
             )
-        for key, values in self.settings.items():
-            newest_version = self.get_info_from_github(values["Website"])
+        #for key, values in self.settings.items():
+        #    newest_version = self.get_info_from_github(values["Website"])
 
     def uninstall(self, query):
         pass
 
-#    def install(self, cmd, title=str, url=str, *args):
-    def installa(self, *args):
-        if self.settings["test"] == "jo":
-            self.settings.update({"test": "no"})
+    def install_plugin_from_github(self, query):
+        if len(query.split()) != 3:
+            self.show_msg("Your query is not correct", "Your query => '{}'\nExpected '{}'".format(query,
+                                                                                                  INSTALL_QUERY))
         else:
-            self.settings.update({"test": "jo"})
+            cmd, url, branch = query.split()
+            self.get_info_from_github(url, branch)
 
     @staticmethod
-    def get_info_from_github(url):
-        pass
+    def get_info_from_github(repo_url, branch):
+        # Get the 'plugin.json' content as dictionary
+        plugin_json_url = "{}/blob/{}/plugin.json".format(repo_url, branch)
+        res = requests.get(plugin_json_url)
+        plugin_json_list = res.json()["payload"]["blob"]["rawLines"]
+        plugin_json_str = " ".join(plugin_json_list)
+        plugin_json_dict = json.loads(plugin_json_str)
+
+        # Get the URL for the newest release .zip file
+        "https://github.com/rrFlowLauncher/own_plugin_manager/releases"
 
 
 
 if __name__ == "__main__":
     plugin_manager = PluginManager()
-    plugin_manager.run()
+    #plugin_manager.run()
+    query = "install https://github.com/rrFlowLauncher/own_plugin_manager main"
+    plugin_manager.install_plugin_from_github(query)
