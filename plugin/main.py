@@ -119,43 +119,47 @@ class PluginManager(Flox):
             self.show_msg("Your query is not correct", "Your query => '{}'\nExpected '{}'".format(query,
                                                                                                   INSTALL_QUERY))
         else:
-            cmd, url, branch = query.split()
-            plugin_file_name, download_url = get_plugin_release_info_from_github(url)
+            try:
+                cmd, url, branch = query.split()
+                plugin_file_name, download_url = get_plugin_release_info_from_github(url)
 
-            # Download last release file
-            download_path_with_filename = os.path.join(self.plugindir, "downloads", plugin_file_name)
-            plugin_binary = requests.get(download_url, allow_redirects=True)
-            with open(download_path_with_filename, "wb") as release_file:
-                release_file.write(plugin_binary.content)
+                # Download last release file
+                download_path_with_filename = os.path.join(self.plugindir, "downloads", plugin_file_name)
+                plugin_binary = requests.get(download_url, allow_redirects=True)
+                with open(download_path_with_filename, "wb") as release_file:
+                    release_file.write(plugin_binary.content)
 
-            # unzip release file into plugins folder
-            destination_path = os.path.join(self.user_dir, "Plugins", plugin_file_name.split(".zip")[0])
-            with zipfile.ZipFile(download_path_with_filename, "r") as zip_ref:
-                zip_ref.extractall(destination_path)
+                # unzip release file into plugins folder
+                destination_path = os.path.join(self.user_dir, "Plugins", plugin_file_name.split(".zip")[0])
+                with zipfile.ZipFile(download_path_with_filename, "r") as zip_ref:
+                    zip_ref.extractall(destination_path)
 
-            # update settings with new plugin
-            new_plugin_json_file = os.path.join(destination_path, "plugin.json")
-            with open(new_plugin_json_file, "r") as plugin_file:
-                new_plugin_json_file_str = plugin_file.read()
-            new_plugin_json_file_dict = json.loads(new_plugin_json_file_str)
-            plugin_name = new_plugin_json_file_dict["Name"]
-            plugin_version = new_plugin_json_file_dict["Version"]
-            plugin_website = new_plugin_json_file_dict["Website"].rstrip("/")
-            self.settings.update({plugin_name:
-                {
-                    "Branch": branch,
-                    "Version": plugin_version,
-                    "Website": plugin_website,
-                    "path": destination_path
-                }
-            })
+                # update settings with new plugin
+                new_plugin_json_file = os.path.join(destination_path, "plugin.json")
+                with open(new_plugin_json_file, "r") as plugin_file:
+                    new_plugin_json_file_str = plugin_file.read()
+                new_plugin_json_file_dict = json.loads(new_plugin_json_file_str)
+                plugin_name = new_plugin_json_file_dict["Name"]
+                plugin_version = new_plugin_json_file_dict["Version"]
+                plugin_website = new_plugin_json_file_dict["Website"].rstrip("/")
+                self.settings.update({plugin_name:
+                    {
+                        "Branch": branch,
+                        "Version": plugin_version,
+                        "Website": plugin_website,
+                        "path": destination_path
+                    }
+                })
 
-            # success message
-            self.show_msg("Installation of '{}' => success".format(plugin_name), "Please restart FlowLauncher")
+                # success message
+                self.show_msg("Installation of '{}' => success".format(plugin_name), "Please restart FlowLauncher")
+            except Exception as e:
+                self.show_msg("Exception - Installation", str(e))
 
 
 if __name__ == "__main__":
     plugin_manager = PluginManager()
     #plugin_manager.run()
-    query = "install https://github.com/rrFlowLauncher/amazing_marvin main"
+    query = "install https://github.com/rrFlowLauncher/amazing_marvin/ main"
+    query = "install https://github.com/rrFlowLauncher/own_plugin_manager main"
     plugin_manager.install_plugin_from_github(query)

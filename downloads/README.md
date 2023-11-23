@@ -1,0 +1,1 @@
+This directory is for downloading of Plugin Releases `*.zip` files.
