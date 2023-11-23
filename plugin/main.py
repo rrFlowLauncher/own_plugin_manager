@@ -1,6 +1,7 @@
 import json
 import os
 import time
+import zipfile
 
 import requests
 
@@ -107,6 +108,11 @@ class PluginManager(Flox):
             plugin_binary = requests.get(download_url, allow_redirects=True)
             with open(download_path_with_filename, "wb") as release_file:
                 release_file.write(plugin_binary.content)
+
+            # unzip release file into plugins folder
+            destination_path = os.path.join(self.user_dir, "Plugins", plugin_file_name.split(".zip")[0])
+            with zipfile.ZipFile(download_path_with_filename, "r") as zip_ref:
+                zip_ref.extractall(destination_path)
 
     @staticmethod
     def get_info_from_github(repo_url, branch):
