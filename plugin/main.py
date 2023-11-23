@@ -100,7 +100,13 @@ class PluginManager(Flox):
                                                                                                   INSTALL_QUERY))
         else:
             cmd, url, branch = query.split()
-            self.get_info_from_github(url, branch)
+            plugin_file_name, download_url = self.get_info_from_github(url, branch)
+
+            # Download last release file
+            download_path_with_filename = os.path.join(self.plugindir, "downloads", plugin_file_name)
+            plugin_binary = requests.get(download_url, allow_redirects=True)
+            with open(download_path_with_filename, "wb") as release_file:
+                release_file.write(plugin_binary.content)
 
     @staticmethod
     def get_info_from_github(repo_url, branch):
@@ -111,9 +117,14 @@ class PluginManager(Flox):
         plugin_json_str = " ".join(plugin_json_list)
         plugin_json_dict = json.loads(plugin_json_str)
 
-        # Get the URL for the newest release .zip file
-        "https://github.com/rrFlowLauncher/own_plugin_manager/releases"
+        # Get the Filename + URL for the newest release .zip file
+        release_base_url = "https://api.github.com/repos/{}/releases/latest".format(repo_url.split("github.com/")[1])
+        release_informatoin = requests.get(release_base_url, headers={"Accept": "application/vnd.github+json"})
+        release_informatoin_json = release_informatoin.json()
+        plugin_file_name = release_informatoin_json["assets"][0]["name"]
+        download_url = release_informatoin_json["assets"][0]["browser_download_url"]
 
+        return plugin_file_name, download_url
 
 
 if __name__ == "__main__":
