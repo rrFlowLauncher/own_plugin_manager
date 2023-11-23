@@ -73,16 +73,12 @@ class PluginManager(Flox):
             )
 
     def update(self, query):
-        if "OwnPluginLauncher" not in self.settings.keys():
-            self.settings.update({self.manifest["Name"]: {"Version": self.manifest["Version"],
-                                                          "Website": self.manifest["Website"],
-                                                          "Branch": "main",
-                                                          "Path": self.plugindir}})
-            self.add_item(
-                title="OwnPluginLauncher not available",
-                subtitle="asdf",
-                dont_hide=True
-            )
+        # update the own_plugin_manager data
+        self.settings.update({self.manifest["Name"]: {"Version": self.manifest["Version"],
+                                                      "Website": self.manifest["Website"],
+                                                      "Branch": "main",
+                                                      "Path": self.plugindir}})
+
         for key, values in self.settings.items():
             plugin_json_content = get_plugin_json_file_content_from_github(values["Website"], values["Branch"])
             if values["Version"] != plugin_json_content["Version"]:
