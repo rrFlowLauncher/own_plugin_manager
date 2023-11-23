@@ -40,12 +40,6 @@ class PluginManager(Flox):
                 parameters=["pmr uninstall"],
                 dont_hide=True
             )
-#        #self.browser.open("https://github.com/rrFlowLauncher/amazing_marvin/blob/main/plugin.json")
-#        url =              "https://github.com/rrFlowLauncher/amazing_marvin"
-#        res = requests.get("https://github.com/rrFlowLauncher/amazing_marvin/raw/main/plugin.json")
-#        print(res.json())
-#        res_j = res.json()
-#        print(type(res_j))
 
 
     def context_menu(self, data):
@@ -84,7 +78,8 @@ class PluginManager(Flox):
         if "OwnPluginLauncher" not in self.settings.keys():
             self.settings.update({self.manifest["Name"]: {"Version": self.manifest["Version"],
                                                           "Website": self.manifest["Website"],
-                                                          "Branch": "main"}})
+                                                          "Branch": "main",
+                                                          "Path": self.plugindir}})
             self.add_item(
                 title="OwnPluginLauncher not available",
                 subtitle="asdf",
@@ -94,6 +89,9 @@ class PluginManager(Flox):
         #    newest_version = self.get_info_from_github(values["Website"])
 
     def uninstall(self, query):
+        list_of_plugins = self.get_list_of_all_installed_plugins()
+
+    def get_list_of_all_installed_plugins(self):
         pass
 
     def install_plugin_from_github(self, query):
@@ -123,7 +121,14 @@ class PluginManager(Flox):
             plugin_name = new_plugin_json_file_dict["Name"]
             plugin_version = new_plugin_json_file_dict["Version"]
             plugin_website = new_plugin_json_file_dict["Website"]
-            self.settings.update({plugin_name: {"Version": plugin_version, "Website": plugin_website}})
+            self.settings.update({plugin_name:
+                {
+                    "Branch": branch,
+                    "Version": plugin_version,
+                    "Website": plugin_website,
+                    "path": destination_path
+                }
+            })
 
             # success message
             self.show_msg("Installation of '{}' => success".format(plugin_name), "Please restart FlowLauncher")
