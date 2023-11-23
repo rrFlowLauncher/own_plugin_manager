@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import time
 import zipfile
 
@@ -40,12 +41,6 @@ class PluginManager(Flox):
                 parameters=["pmr uninstall"],
                 dont_hide=True
             )
-#        #self.browser.open("https://github.com/rrFlowLauncher/amazing_marvin/blob/main/plugin.json")
-#        url =              "https://github.com/rrFlowLauncher/amazing_marvin"
-#        res = requests.get("https://github.com/rrFlowLauncher/amazing_marvin/raw/main/plugin.json")
-#        print(res.json())
-#        res_j = res.json()
-#        print(type(res_j))
 
 
     def context_menu(self, data):
@@ -84,17 +79,35 @@ class PluginManager(Flox):
         if "OwnPluginLauncher" not in self.settings.keys():
             self.settings.update({self.manifest["Name"]: {"Version": self.manifest["Version"],
                                                           "Website": self.manifest["Website"],
-                                                          "Branch": "main"}})
+                                                          "Branch": "main",
+                                                          "Path": self.plugindir}})
             self.add_item(
                 title="OwnPluginLauncher not available",
                 subtitle="asdf",
                 dont_hide=True
             )
-        #for key, values in self.settings.items():
-        #    newest_version = self.get_info_from_github(values["Website"])
+        for key, values in self.settings.items():
+            newest_version = self.get_info_from_github(values["Website"])
 
     def uninstall(self, query):
-        pass
+        for key, value in self.settings.items():
+            self.add_item(
+                title="{}".format(key),
+                subtitle=value,
+                method=self.uninstall_plugin,
+                parameters=[key]
+            )
+
+    def uninstall_plugin(self, plugin_name):
+        if plugin_name == self.manifest["Name"]:
+            self.show_msg(plugin_name, "Is not allowed to uninstall\nBecause it is this Plugin Manager")
+        else:
+            try:
+                shutil.rmtree(self.settings[plugin_name]["path"])
+                del self.settings[plugin_name]
+                self.show_msg(plugin_name, "Uninstall successfully")
+            except Exception as e:
+                self.show_msg("Exception during uninstallation", e)
 
     def install_plugin_from_github(self, query):
         if len(query.split()) != 3:
@@ -123,7 +136,14 @@ class PluginManager(Flox):
             plugin_name = new_plugin_json_file_dict["Name"]
             plugin_version = new_plugin_json_file_dict["Version"]
             plugin_website = new_plugin_json_file_dict["Website"]
-            self.settings.update({plugin_name: {"Version": plugin_version, "Website": plugin_website}})
+            self.settings.update({plugin_name:
+                {
+                    "Branch": branch,
+                    "Version": plugin_version,
+                    "Website": plugin_website,
+                    "path": destination_path
+                }
+            })
 
             # success message
             self.show_msg("Installation of '{}' => success".format(plugin_name), "Please restart FlowLauncher")
@@ -133,4 +153,4 @@ if __name__ == "__main__":
     plugin_manager = PluginManager()
     #plugin_manager.run()
     query = "install https://github.com/rrFlowLauncher/own_plugin_manager main"
-    plugin_manager.install_plugin_from_github(query)
+    plugin_manager.uninstall_plugin("Amazing Marvin")
