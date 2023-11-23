@@ -4,8 +4,9 @@ import time
 import zipfile
 
 import requests
-
 from flox import Flox
+
+from get_from_github import *
 
 INSTALL_QUERY = "install <GitHub_Repo_URL> <Branch>"
 
@@ -101,7 +102,7 @@ class PluginManager(Flox):
                                                                                                   INSTALL_QUERY))
         else:
             cmd, url, branch = query.split()
-            plugin_file_name, download_url = self.get_info_from_github(url, branch)
+            plugin_file_name, download_url = get_plugin_release_info_from_github(url)
 
             # Download last release file
             download_path_with_filename = os.path.join(self.plugindir, "downloads", plugin_file_name)
@@ -114,23 +115,18 @@ class PluginManager(Flox):
             with zipfile.ZipFile(download_path_with_filename, "r") as zip_ref:
                 zip_ref.extractall(destination_path)
 
-    @staticmethod
-    def get_info_from_github(repo_url, branch):
-        # Get the 'plugin.json' content as dictionary
-        plugin_json_url = "{}/blob/{}/plugin.json".format(repo_url, branch)
-        res = requests.get(plugin_json_url)
-        plugin_json_list = res.json()["payload"]["blob"]["rawLines"]
-        plugin_json_str = " ".join(plugin_json_list)
-        plugin_json_dict = json.loads(plugin_json_str)
+            # update settings with new plugin
+            new_plugin_json_file = os.path.join(destination_path, "plugin.json")
+            with open(new_plugin_json_file, "r") as plugin_file:
+                new_plugin_json_file_str = plugin_file.read()
+            new_plugin_json_file_dict = json.loads(new_plugin_json_file_str)
+            plugin_name = new_plugin_json_file_dict["Name"]
+            plugin_version = new_plugin_json_file_dict["Version"]
+            plugin_website = new_plugin_json_file_dict["Website"]
+            self.settings.update({plugin_name: {"Version": plugin_version, "Website": plugin_website}})
 
-        # Get the Filename + URL for the newest release .zip file
-        release_base_url = "https://api.github.com/repos/{}/releases/latest".format(repo_url.split("github.com/")[1])
-        release_informatoin = requests.get(release_base_url, headers={"Accept": "application/vnd.github+json"})
-        release_informatoin_json = release_informatoin.json()
-        plugin_file_name = release_informatoin_json["assets"][0]["name"]
-        download_url = release_informatoin_json["assets"][0]["browser_download_url"]
-
-        return plugin_file_name, download_url
+            # success message
+            self.show_msg("Installation of '{}' => success".format(plugin_name), "Please restart FlowLauncher")
 
 
 if __name__ == "__main__":
