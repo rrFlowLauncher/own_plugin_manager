@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import time
 import zipfile
 
@@ -85,14 +86,28 @@ class PluginManager(Flox):
                 subtitle="asdf",
                 dont_hide=True
             )
-        #for key, values in self.settings.items():
-        #    newest_version = self.get_info_from_github(values["Website"])
+        for key, values in self.settings.items():
+            newest_version = self.get_info_from_github(values["Website"])
 
     def uninstall(self, query):
-        list_of_plugins = self.get_list_of_all_installed_plugins()
+        for key, value in self.settings.items():
+            self.add_item(
+                title="{}".format(key),
+                subtitle=value,
+                method=self.uninstall_plugin,
+                parameters=[key]
+            )
 
-    def get_list_of_all_installed_plugins(self):
-        pass
+    def uninstall_plugin(self, plugin_name):
+        if plugin_name == self.manifest["Name"]:
+            self.show_msg(plugin_name, "Is not allowed to uninstall\nBecause it is this Plugin Manager")
+        else:
+            try:
+                shutil.rmtree(self.settings[plugin_name]["path"])
+                del self.settings[plugin_name]
+                self.show_msg(plugin_name, "Uninstall successfully")
+            except Exception as e:
+                self.show_msg("Exception during uninstallation", e)
 
     def install_plugin_from_github(self, query):
         if len(query.split()) != 3:
@@ -138,4 +153,4 @@ if __name__ == "__main__":
     plugin_manager = PluginManager()
     #plugin_manager.run()
     query = "install https://github.com/rrFlowLauncher/own_plugin_manager main"
-    plugin_manager.install_plugin_from_github(query)
+    plugin_manager.uninstall_plugin("Amazing Marvin")
