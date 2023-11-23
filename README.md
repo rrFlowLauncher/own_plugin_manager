@@ -1,25 +1,38 @@
-# FL_plugin_manager
+# own_plugin_manager
+This is a Plugin Manager for [FlowLauncher](https://www.flowlauncher.com).
 
-# FlowLauncher documentation about Plugins in Python
-https://www.flowlauncher.com/docs/#/py-develop-plugins?id=about-flow39s-python-plugins
+There is an official [PluginManager](https://github.com/Flow-Launcher/Flow.Launcher.PluginsManifest) available.
 
-# Flox lib
-https://github.com/Garulf/Flox
+# Why this project?
+With this Plugin, you can `install` / `update` / `uninstall` Flow Launcher Plugins by your own.
+The only thing, that you need, is to have the URL to the GitHub repo of the Plugin.
 
+In the Officizial [Plugin Manifest](https://github.com/Flow-Launcher/Flow.Launcher.PluginsManifest),
+you have to create a fork + Pull Request for your Plugins.
+After that you have to wait, until someone reviewed your changes.
+For every update of your Plugin, you have to do this again.
+This need some more work and time to wait until your Plugin is available in FlowLauncher.
 
-# The `plugin.json` file
-```json
-{
-  "ID":"",             //Plugin ID，32 bit UUID
-  "ActionKeyword":"",  //Plugin default action keyword (* means no specific action keyword)
-  "Name":"",           //Plugin name
-  "Description":"",    //Plugin description
-  "Author":"",         //Plugin Author
-  "Version":"",        //Plugin version (e.g. 1.0.0). It is important for plugin update checking.
-  "Language":"",       //Plugin language，available fields are csharp, fsharp, python, javascript, typescript and executable. Make sure you put the correct field for your plugin language, this is important so that the required runtime environment can be setup automatically.
-  "Website":"",        //Plugin website or author website
-  "IcoPath": "",       //Plugin icon, relative path to the plugin folder
-  "ExecuteFileName":"" //Execution entry. dll extension for C#/F# plugin, .py for python plugin, .js/.ts for JS/TS plugins and .exe or other executable for executable plugin. Path examples include "main.py" or "./dist/main.js"
-}
-```
+## What's the advantages of this Plugin
+- You can install every Plugin, only with a GitHub Repo Link.
+- You don't need to update the official Plugin Manifest file.
+- You have not to wait, until someone is approved your changes in the Official Plugin Manifest.
+- If the Plugin `Version` will be updated in the `plugin.json` file, you update it with this plugin, without anymore effort.
 
+# How to install it into Flow Launcher
+1. You have to download the last release `own_plugin_manager.zip` file
+2. Unzip it into your FlowLauncher `<user directory>\Plugins\` directory.
+3. Restart FlowLauncher
+
+# How to use it
+1. Use the active key (`pmr`) in FlowLauncher
+2. Follow the instructions
+
+# What this Plugin is supporting
+- [x] Install Plugins with GitHub Link
+- [x] Show Updates of Plugins
+- [x] Updates a Plugin
+- [x] Remove Plugins
+
+# Next Stepps
+- [ ] Let me know about your wishes => Create an Issue
