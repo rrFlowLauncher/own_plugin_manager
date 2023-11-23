@@ -1,3 +1,4 @@
+import os
 import time
 
 import requests
@@ -5,23 +6,17 @@ import requests
 from flox import Flox
 
 
-
 class PluginManager(Flox):
     def __init__(self):
         super().__init__()
+
     def query(self, query):
         if query.startswith("install"):
-            self.add_item(
-                title="install",
-                subtitle="install <Name> <GitHub Repo URL>",
-                method=self.installa,
-                parameters=["pmr install"],
-                dont_hide=True
-            )
+            self.install(query)
         elif query.startswith("update"):
-            pass
+            self.update(query)
         elif query.startswith("uninstall"):
-            pass
+            self.uninstall(query)
         else:
             self.add_item(
                 title="install",
@@ -55,26 +50,48 @@ class PluginManager(Flox):
             subtitle=data,
             context=["jip"]
         )
+        self.change_query("pmr install succ", True)
+
+    def install(self, query):
+        if len(query.split()) <=3:
+            self.add_item(
+                title="install",
+                subtitle="install <Name> <GitHub Repo URL>",
+                method=self.installa,
+                parameters=[query],
+                dont_hide=True
+            )
+        else:
+            self.add_item(
+                title="install - to many parameters",
+                subtitle="install <Name> <GitHub Repo URL>",
+                dont_hide=True
+            )
+
+    def update(self, query):
+        if "OwnPluginLauncher" not in self.settings.keys():
+            self.settings.update({self.manifest["Name"]: {"Version": self.manifest["Version"], "Website": self.manifest["Website"]}})
+            self.add_item(
+                title="OwnPluginLauncher not available",
+                subtitle="asdf",
+                dont_hide=True
+            )
+        for key, values in self.settings.items():
+            newest_version = self.get_info_from_github(values["Website"])
+
+    def uninstall(self, query):
+        pass
 
 #    def install(self, cmd, title=str, url=str, *args):
     def installa(self, *args):
-        self.start_loadingbar()
-        self.add_item(
-            title="installing",
-            subtitle="install <Name> <GitHub Repo URL>",
-#            method=self.install,
-#            parameters=["pmr install"],
-            dont_hide=True
-        )
-        time.sleep(1)
-        self.add_item(
-            title="install finished",
-            subtitle="install <Name> <GitHub Repo URL>",
-          #  method=self.install,
-         #   parameters=["pmr install"],
-            dont_hide=True
-        )
-        self.stop_loadingbar()
+        if self.settings["test"] == "jo":
+            self.settings.update({"test": "no"})
+        else:
+            self.settings.update({"test": "jo"})
+
+    @staticmethod
+    def get_info_from_github(url):
+        pass
 
 
 

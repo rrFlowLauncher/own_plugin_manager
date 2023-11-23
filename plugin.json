@@ -1,7 +1,7 @@
 {
     "ID": "ec5e1749-9645-43d5-a70d-a62fca016add",
     "ActionKeyword": "pmr",
-    "Name": "RrobertRr own plugin manager for FlowLauncher",
+    "Name": "OwnPluginLauncher",
     "Description": "RrobertRr own plugin manager for FlowLauncher",
     "Author": "RrobertRr",
     "Version": "0.1.0",
