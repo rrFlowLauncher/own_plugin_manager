@@ -87,7 +87,15 @@ class PluginManager(Flox):
                 dont_hide=True
             )
         for key, values in self.settings.items():
-            newest_version = self.get_info_from_github(values["Website"])
+            plugin_json_content = get_plugin_json_file_content_from_github(values["Website"], values["Branch"])
+            if values["Version"] != plugin_json_content["Version"]:
+                self.add_item(
+                    title=key,
+                    subtitle="{} => {}".format(values["Version"], plugin_json_content["Version"]),
+                    method=self.install_plugin_from_github,
+                    parameters=["install {} {}".format(values["Website"], values["Branch"])],
+                    dont_hide=True
+                )
 
     def uninstall(self, query):
         for key, value in self.settings.items():
@@ -153,4 +161,4 @@ if __name__ == "__main__":
     plugin_manager = PluginManager()
     #plugin_manager.run()
     query = "install https://github.com/rrFlowLauncher/own_plugin_manager main"
-    plugin_manager.uninstall_plugin("Amazing Marvin")
+    plugin_manager.update(query)
