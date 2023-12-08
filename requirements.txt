@@ -3,3 +3,4 @@ certifi~=2023.11.17
 idna~=3.4
 urllib3~=2.1.0
 requests~=2.31.0
+hawkcatcher~=3.4.1
