@@ -8,6 +8,8 @@ from hawkcatcher import Hawk
 from get_from_github import *
 
 INSTALL_QUERY = "install <GitHub_Repo_URL> <Branch>"
+PLUGINS_KEY = "plugins"
+SETTINGS_KEY = "settings"
 
 class HawkLogHandler(logging.Handler):
     def emit(self, record):
@@ -19,8 +21,14 @@ class HawkLogHandler(logging.Handler):
 class PluginManager(Flox):
     def __init__(self):
         super().__init__()
-        hh = HawkLogHandler()
-        self.logger.addHandler(hh)
+        try:
+            self.hawk_send_exceptions = self.settings[SETTINGS_KEY]["hawk"]
+        except:
+            self.settings.update({SETTINGS_KEY: {"hawk": False}})
+        if self.settings[SETTINGS_KEY]["hawk"]:
+            hh = HawkLogHandler()
+            self.logger.addHandler(hh)
+
 
     def query(self, query):
         if query.startswith("install"):
@@ -83,12 +91,12 @@ class PluginManager(Flox):
 
     def update(self, query):
         # update the own_plugin_manager data
-        self.settings.update({self.manifest["Name"]: {"Version": self.manifest["Version"],
+        self.settings[PLUGINS_KEY].update({self.manifest["Name"]: {"Version": self.manifest["Version"],
                                                       "Website": self.manifest["Website"],
                                                       "Branch": "main",
                                                       "Path": self.plugindir}})
 
-        for key, values in self.settings.items():
+        for key, values in self.settings[PLUGINS_KEY].items():
             plugin_json_content = get_plugin_json_file_content_from_github(values["Website"], values["Branch"])
             if values["Version"] != plugin_json_content["Version"]:
                 self.add_item(
@@ -100,7 +108,7 @@ class PluginManager(Flox):
                 )
 
     def uninstall(self, query):
-        for key, value in self.settings.items():
+        for key, value in self.settings[PLUGINS_KEY].items():
             self.add_item(
                 title="{}".format(key),
                 subtitle=value,
@@ -112,8 +120,8 @@ class PluginManager(Flox):
         if plugin_name == self.manifest["Name"]:
             self.show_msg(plugin_name, "Is not allowed to uninstall\nBecause it is this Plugin Manager")
         else:
-            shutil.rmtree(self.settings[plugin_name]["path"])
-            del self.settings[plugin_name]
+            shutil.rmtree(self.settings[PLUGINS_KEY][plugin_name]["path"])
+            del self.settings[PLUGINS_KEY][plugin_name]
             self.show_msg(plugin_name, "Uninstall successfully")
 
 
@@ -144,7 +152,7 @@ class PluginManager(Flox):
             plugin_name = new_plugin_json_file_dict["Name"]
             plugin_version = new_plugin_json_file_dict["Version"]
             plugin_website = new_plugin_json_file_dict["Website"].rstrip("/")
-            self.settings.update({plugin_name:
+            self.settings[PLUGINS_KEY].update({plugin_name:
                 {
                     "Branch": branch,
                     "Version": plugin_version,
